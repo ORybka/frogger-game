@@ -1,4 +1,4 @@
-/* eslint-disable prefer-destructuring */
+/* eslint-disable no-use-before-define */
 const borders = {
   borderX: [0, 400],
   borderY: [0, 400],
@@ -7,11 +7,6 @@ const borders = {
 
 // Enemies our player must avoid
 const Enemy = function (x, y, speed) {
-  // Variables applied to each of our instances go here,
-  // we've provided one for you to get started
-
-  // The image/sprite for our enemies, this uses
-  // a helper we've provided to easily load images
   this.sprite = 'images/enemy-bug.png';
   this.x = x;
   this.y = y;
@@ -48,25 +43,26 @@ Player.prototype.handleInput = function (position) {
     case 'left':
       this.x -= 100;
       if (this.x <= borders.borderX[0]) {
-        this.x = 0;
+        this.x = borders.borderX[0];
       }
       break;
     case 'up':
-      this.y -= 100;
+      this.y -= 80;
       if (this.y <= borders.borderY[0]) {
-        this.y = 0;
+        this.y = -30;
+        winMessage();
       }
       break;
     case 'right':
       this.x += 100;
       if (this.x >= borders.borderX[1]) {
-        this.x = 400;
+        this.x = borders.borderX[1];
       }
       break;
     case 'down':
-      this.y += 100;
+      this.y += 80;
       if (this.y >= borders.borderY[1]) {
-        this.y = 380;
+        this.y = borders.borderY[1] - 20;
       }
       break;
     default:
@@ -74,18 +70,17 @@ Player.prototype.handleInput = function (position) {
   }
 };
 
-// function checkBorders(position) {
-// else if (position >= borders.borderX[1]) {
-//     console.log('right border!!');
-//     position = 400;
-//   } else if (position <= borders.borderY[0]) {
-//     console.log('top border!!');
-//     position = 0;
-//   } else if (position >= borders.borderY[1]) {
-//     console.log('bottom border!!');
-//     position = 380;
-//   }
-// }
+function winMessage() {
+  setTimeout(() => {
+    alert('You win!');
+    resetPosition();
+  }, 50);
+}
+
+function resetPosition() {
+  player.x = 200;
+  player.y = 380;
+}
 
 // Now instantiate your objects.
 // Place all enemy objects in an array called allEnemies
@@ -96,9 +91,6 @@ const allEnemies = [];
 
 const player = new Player(200, 380);
 
-// This listens for key presses and sends the keys to your
-
-// Player.handleInput() method. You don't need to modify this.
 document.addEventListener('keyup', function (e) {
   const allowedKeys = {
     37: 'left',
