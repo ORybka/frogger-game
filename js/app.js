@@ -5,110 +5,118 @@ const param = {
   enemyY: [60, 145, 230],
   minSpeed: 50,
   maxSpeed: 200,
-  enemyOutline: 70,
+  enemySize: 60,
+  initialX: 200,
+  initialY: 380,
   playerWidth: 100,
   playerHeight: 80,
 };
 
-class Enemy {
-  constructor(x, y) {
-    this.sprite = 'images/enemy-bug.png';
-    this.x = x;
-    this.y = y;
-    this.speed = Math.floor(Math.random() * (param.maxSpeed - param.minSpeed) + param.minSpeed);
-  }
-
-  update(dt) {
-    this.x += this.speed * dt;
-    if (this.x >= param.fieldBorderX[1] + param.enemyOutline) {
-      this.x = param.enemyX;
-    }
-  }
-
-  render() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-  }
-}
-
-class Player {
-  constructor(x, y) {
-    this.sprite = 'images/char-cat-girl.png';
-    this.x = x;
-    this.y = y;
-  }
-
-  update() {
-    this.checkCollision();
-  }
-
-  render() {
-    ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
-  }
-
-  handleInput(position) {
-    switch (position) {
-      case 'left':
-        this.x -= param.playerWidth;
-        if (this.x <= param.fieldBorderX[0]) {
-          this.x = param.fieldBorderX[0];
-        }
-        break;
-      case 'up':
-        this.y -= param.playerHeight;
-        if (this.y <= param.fieldBorderY[0]) {
-          this.y = -30;
-          this.winMessage();
-        }
-        break;
-      case 'right':
-        this.x += param.playerWidth;
-        if (this.x >= param.fieldBorderX[1]) {
-          this.x = param.fieldBorderX[1];
-        }
-        break;
-      case 'down':
-        this.y += param.playerHeight;
-        if (this.y >= param.fieldBorderY[1]) {
-          this.y = param.fieldBorderY[1] - 20;
-        }
-        break;
-      default:
-        break;
-    }
-  }
-
-  checkCollision() {
-    for (let i = 0; i < allEnemies.length; i++) {
-      if (this.y <= allEnemies[i].y + param.enemyOutline && this.y >= allEnemies[i].y - param.enemyOutline && this.x <= allEnemies[i].x + param.enemyOutline && this.x >= allEnemies[i].x - param.enemyOutline) {
-        this.loseMessage();
-      }
-    }
-  }
-
-  winMessage() {
-    setTimeout(() => {
-      alert('You win!');
-      this.resetGame();
-    }, 100);
-  }
-
-  loseMessage() {
-    setTimeout(() => {
-      alert('Oh, no! You lose!');
-      this.resetGame();
-    }, 0);
-  }
-
-  resetGame() {
-    this.x = 200;
-    this.y = 380;
-  }
-}
+const Enemy = function (x, y) {
+  this.sprite = 'images/enemy-bug.png';
+  this.x = x;
+  this.y = y;
+  this.speed = Math.floor(Math.random() * (param.maxSpeed - param.minSpeed) + param.minSpeed);
+  this.width = param.enemySize;
+  this.endField = param.fieldBorderX[1];
+  this.startX = param.enemyX;
+};
 
 const allEnemies = [];
 param.enemyY.forEach((el) => allEnemies.push(new Enemy(param.enemyX, el)));
 
-const player = new Player(200, 380);
+Enemy.prototype.update = function (dt) {
+  this.x += this.speed * dt;
+  if (this.x >= this.endField + this.width) {
+    this.x = this.startX;
+  }
+};
+
+Enemy.prototype.render = function () {
+  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+const Player = function (x, y) {
+  this.sprite = 'images/char-cat-girl.png';
+  this.x = x;
+  this.y = y;
+  this.width = param.playerWidth;
+  this.height = param.playerHeight;
+  this.startFieldX = param.fieldBorderX[0];
+  this.endFieldX = param.fieldBorderX[1];
+  this.startFieldY = param.fieldBorderY[0];
+  this.endFieldY = param.fieldBorderY[1];
+  this.enemies = allEnemies;
+  this.enemySize = param.enemySize;
+};
+
+const player = new Player(param.initialX, param.initialY);
+
+Player.prototype.update = function () {
+  this.checkCollision();
+};
+
+Player.prototype.render = function () {
+  ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
+};
+
+Player.prototype.handleInput = function (position) {
+  switch (position) {
+    case 'left':
+      this.x -= this.width;
+      if (this.x <= this.startFieldX) {
+        this.x = this.startFieldX;
+      }
+      break;
+    case 'up':
+      this.y -= this.height;
+      if (this.y <= this.startFieldY) {
+        this.winMessage();
+      }
+      break;
+    case 'right':
+      this.x += this.width;
+      if (this.x >= this.endFieldX) {
+        this.x = this.endFieldX;
+      }
+      break;
+    case 'down':
+      this.y += this.height;
+      if (this.y >= this.endFieldY) {
+        this.y = this.endFieldY;
+      }
+      break;
+    default:
+      break;
+  }
+};
+
+Player.prototype.checkCollision = function () {
+  for (let i = 0; i < this.enemies.length; i++) {
+    if (this.y <= this.enemies[i].y + this.enemySize && this.y >= this.enemies[i].y - this.enemySize && this.x <= this.enemies[i].x + this.enemySize && this.x >= this.enemies[i].x - this.enemySize) {
+      this.loseMessage();
+    }
+  }
+};
+
+Player.prototype.winMessage = function () {
+  setTimeout(() => {
+    alert('You win!');
+    this.resetGame();
+  }, 100);
+};
+
+Player.prototype.loseMessage = function () {
+  setTimeout(() => {
+    alert('Oh no! You lose!');
+    this.resetGame();
+  }, 0);
+};
+
+Player.prototype.resetGame = function () {
+  this.x = 200;
+  this.y = 380;
+};
 
 document.addEventListener('keyup', function (e) {
   const allowedKeys = {
