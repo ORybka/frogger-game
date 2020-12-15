@@ -3,7 +3,6 @@ const fieldBorders = {
   fieldBorderY: [0, 400],
 };
 
-// Enemies our player must avoid
 class Enemy {
   constructor(x, y) {
     this.sprite = 'images/enemy-bug.png';
@@ -26,15 +25,12 @@ class Enemy {
   }
 }
 
-// Now write your own player class
-// This class requires an update(), render() and
-// a handleInput() method.
 class Player {
   constructor(x, y) {
     this.sprite = 'images/char-boy.png';
     this.x = x;
     this.y = y;
-    this.enemy = allEnemies[0];
+    this.enemy = allEnemies;
     this.enemyHeight = 70;
     this.enemyWidth = 80;
   }
@@ -79,9 +75,17 @@ class Player {
     }
   }
 
+  // checkCollision() {
+  //   if (this.y <= this.enemy.y + this.enemyHeight && this.y >= this.enemy.y - this.enemyHeight && this.x <= this.enemy.x + this.enemyWidth && this.x >= this.enemy.x - this.enemyWidth) {
+  //     this.loseMessage();
+  //   }
+  // }
+
   checkCollision() {
-    if (this.y <= this.enemy.y + this.enemyHeight && this.y >= this.enemy.y - this.enemyHeight && this.x <= this.enemy.x + this.enemyWidth && this.x >= this.enemy.x - this.enemyWidth) {
-      this.loseMessage();
+    for (let i = 0; i < this.enemy.length; i++) {
+      if (this.y <= this.enemy[i].y + this.enemyHeight && this.y >= this.enemy[i].y - this.enemyHeight && this.x <= this.enemy[i].x + this.enemyWidth && this.x >= this.enemy[i].x - this.enemyWidth) {
+        this.loseMessage();
+      }
     }
   }
 
@@ -105,12 +109,11 @@ class Player {
   }
 }
 
-// Now instantiate your objects.
-// Place all enemy objects in an array called allEnemies
-// Place the player object in a variable called player
-const enemy1 = new Enemy(200, 150);
+const enemyX = 0;
+const enemyY = [60, 145, 230];
 
-const allEnemies = [enemy1];
+const allEnemies = [];
+enemyY.forEach((el) => allEnemies.push(new Enemy(enemyX, el)));
 
 const player = new Player(200, 380);
 
